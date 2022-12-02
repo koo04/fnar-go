@@ -14,3 +14,7 @@ A fnar.net go wrapper. This is a passion project to allow a go application to ea
 - [ ] Get Planet
 - [ ] Get Recipes
 - [ ] Get Star
+
+## Note
+
+- This pacakge is *NOT* maintained by fnar.net
