@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	srt "sort"
 	"time"
 
 	"github.com/koo04/fnar-go/fnar"
@@ -60,6 +61,10 @@ func GetAll(ctx context.Context) ([]*Material, error) {
 		}
 		materials = append(materials, material)
 	}
+
+	srt.SliceStable(materials, func(i int, m int) bool {
+		return materials[i].Name < materials[m].Name
+	})
 
 	return materials, nil
 }
