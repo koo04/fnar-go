@@ -45,9 +45,6 @@ func GetAll(ctx context.Context) ([]*Material, error) {
 		return nil, errors.Wrap(err, "reading the response body")
 	}
 
-	sBody := string(body)
-	_ = sBody
-
 	materialsMap := []map[string]interface{}{}
 	if err := json.Unmarshal(body, &materialsMap); err != nil {
 		return nil, errors.Wrap(err, "decoding json response")

@@ -4,6 +4,7 @@ A fnar.net go wrapper. This is a passion project to allow a go application to ea
 
 ## Goals
 
+- [ ] Authentication
 - [ ] Get Building
 - [ ] Get Company
 - [ ] Get Contract
