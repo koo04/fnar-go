@@ -142,6 +142,7 @@ func GetAllShipsFuel(ctx context.Context, username string, auth *fnar.Authentica
 		case "STL_FUEL_STORE":
 			fuel.STLAmount = amount
 		}
+		shipsFuels[shipFuelMap["Name"].(string)] = fuel
 	}
 
 	return shipsFuels, nil
