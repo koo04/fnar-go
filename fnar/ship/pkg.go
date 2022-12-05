@@ -134,15 +134,17 @@ func GetAllShipsFuel(ctx context.Context, username string, auth *fnar.Authentica
 
 	shipsFuels := map[string]*Fuel{}
 	for _, shipFuelMap := range shipsFuelMap {
-		fuel := &Fuel{}
+		sf, ok := shipFuelMap["Name"].(*Fuel)
+		if !ok {
+			shipsFuels[shipFuelMap["Name"].(string)] = &Fuel{}
+		}
 		amount := shipFuelMap["StorageItems"].([]interface{})[0].(map[string]interface{})["MaterialAmount"].(float64)
 		switch shipFuelMap["Type"].(string) {
 		case "FTL_FUEL_STORE":
-			fuel.FTLAmount = amount
+			sf.FTLAmount = amount
 		case "STL_FUEL_STORE":
-			fuel.STLAmount = amount
+			sf.STLAmount = amount
 		}
-		shipsFuels[shipFuelMap["Name"].(string)] = fuel
 	}
 
 	return shipsFuels, nil
