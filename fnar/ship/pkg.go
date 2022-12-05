@@ -49,6 +49,18 @@ type Ship struct {
 	Timestamp                time.Time `json:"Timestamp"`
 }
 
+type FuelType string
+
+const (
+	FTL FuelType = "ftl"
+	STL FuelType = "stl"
+)
+
+type Fuel struct {
+	Type   FuelType `json:"fuel_type"`
+	Amount float64  `json:"amount"`
+}
+
 const endpoint = "/ship"
 
 func GetAll(ctx context.Context, username string, auth *fnar.Authentication) ([]*Ship, error) {
@@ -93,6 +105,57 @@ func GetAll(ctx context.Context, username string, auth *fnar.Authentication) ([]
 	}
 
 	return ships, nil
+}
+
+func GetAllShipsFuel(ctx context.Context, username string, auth *fnar.Authentication) (map[string]*Fuel, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", fnar.BaseUrl+endpoint+"/ships/fuel/"+username, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "creating request for getting all ships")
+	}
+	req.Header.Add("Authorization", auth.AuthToken)
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "getting all ships")
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		b, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		return nil, errors.New(string(b))
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "reading the response body")
+	}
+
+	// setup ship
+	shipsFuelMap := []map[string]interface{}{}
+	if err := json.Unmarshal(body, &shipsFuelMap); err != nil {
+		return nil, errors.Wrap(err, "decoding json response")
+	}
+
+	shipsFuels := map[string]*Fuel{}
+	for _, shipFuelMap := range shipsFuelMap {
+		var t FuelType
+		switch shipFuelMap["Type"].(string) {
+		case "FTL_FUEL_STORE":
+			t = FTL
+		case "STL_FUEL_STORE":
+			t = STL
+		}
+		fuel := &Fuel{
+			Type:   t,
+			Amount: shipFuelMap["StorageItems"].([]interface{})[0].(map[string]interface{})["MaterialAmount"].(float64),
+		}
+		shipsFuels[shipFuelMap["Name"].(string)] = fuel
+	}
+
+	return shipsFuels, nil
 }
 
 func (s *Ship) parse(ship map[string]interface{}) error {
