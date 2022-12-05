@@ -132,10 +132,10 @@ func GetAllShipsFuel(ctx context.Context, username string, auth *fnar.Authentica
 		return nil, errors.Wrap(err, "decoding json response")
 	}
 
-	shipsFuels := map[string]Fuel{}
+	shipsFuels := map[string]*Fuel{}
 	for _, shipFuelMap := range shipsFuelMap {
 		if _, ok := shipsFuels[shipFuelMap["Name"].(string)]; !ok {
-			shipsFuels[shipFuelMap["Name"].(string)] = Fuel{}
+			shipsFuels[shipFuelMap["Name"].(string)] = &Fuel{}
 		}
 		amount := shipFuelMap["StorageItems"].([]interface{})[0].(map[string]interface{})["MaterialAmount"].(float64)
 		if shipFuelMap["Type"].(string) == "FTL_FUEL_STORE" {
