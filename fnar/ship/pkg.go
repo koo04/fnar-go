@@ -49,16 +49,9 @@ type Ship struct {
 	Timestamp                time.Time `json:"Timestamp"`
 }
 
-type FuelType string
-
-const (
-	FTL FuelType = "ftl"
-	STL FuelType = "stl"
-)
-
 type Fuel struct {
-	Type   FuelType `json:"fuel_type"`
-	Amount float64  `json:"amount"`
+	FTLAmount float64 `json:"ftl_amount"`
+	STLAmount float64 `json:"stl_amount"`
 }
 
 const endpoint = "/ship"
@@ -141,18 +134,14 @@ func GetAllShipsFuel(ctx context.Context, username string, auth *fnar.Authentica
 
 	shipsFuels := map[string]*Fuel{}
 	for _, shipFuelMap := range shipsFuelMap {
-		var t FuelType
+		fuel := &Fuel{}
+		amount := shipFuelMap["StorageItems"].([]interface{})[0].(map[string]interface{})["MaterialAmount"].(float64)
 		switch shipFuelMap["Type"].(string) {
 		case "FTL_FUEL_STORE":
-			t = FTL
+			fuel.FTLAmount = amount
 		case "STL_FUEL_STORE":
-			t = STL
+			fuel.STLAmount = amount
 		}
-		fuel := &Fuel{
-			Type:   t,
-			Amount: shipFuelMap["StorageItems"].([]interface{})[0].(map[string]interface{})["MaterialAmount"].(float64),
-		}
-		shipsFuels[shipFuelMap["Name"].(string)] = fuel
 	}
 
 	return shipsFuels, nil
