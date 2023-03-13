@@ -14,7 +14,7 @@ import (
 type Material struct {
 	Id     string `json:"MaterialId"`
 	Name   string `json:"MaterialName"`
-	Ticket string `json:"MaterialTicker"`
+	Ticker string `json:"MaterialTicker"`
 	Amount int32  `json:"MaterialAmount"`
 }
 
