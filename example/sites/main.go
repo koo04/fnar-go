@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/koo04/fnar-go/fnar"
-	"github.com/koo04/fnar-go/fnar/ship"
+	"github.com/koo04/fnar-go/fnar/site"
 )
 
 func main() {
@@ -25,13 +25,15 @@ func main() {
 		panic(err)
 	}
 
-	// get the ships of the user. in this case, the auth key user
-	ships, err := ship.GetAll(ctx, username, auth)
+	// get the sites of the user. in this case, the auth key user
+	sites, err := site.GetAll(ctx, username, auth)
 	if err != nil {
 		panic(err)
 	}
 
-	for _, ship := range ships {
-		fmt.Println(ship.Registration)
+	for _, s := range sites {
+		for _, building := range s.Buildings {
+			fmt.Println(building.Name)
+		}
 	}
 }
