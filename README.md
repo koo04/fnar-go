@@ -4,7 +4,10 @@ A fnar.net go wrapper. This is a passion project to allow a go application to ea
 
 ## Goals
 
-- [ ] Authentication
+- [x] Authentication
+- [x] Get Player's Ships
+- [x] Get Player's Sites
+- [x] Get Player's Inventories
 - [ ] Get Building
 - [ ] Get Company
 - [ ] Get Contract
