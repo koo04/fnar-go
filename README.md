@@ -8,6 +8,7 @@ A fnar.net go wrapper. This is a passion project to allow a go application to ea
 - [x] Get Player's Ships
 - [x] Get Player's Sites
 - [x] Get Player's Inventories
+- [x] Get Workforce
 - [ ] Get Building
 - [ ] Get Company
 - [ ] Get Contract
