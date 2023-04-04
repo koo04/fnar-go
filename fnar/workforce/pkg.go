@@ -17,7 +17,7 @@ type Need struct {
 	MaterialId         string  `json:"MaterialId"`
 	MaterialName       string  `json:"MaterialName"`
 	MaterialTicket     string  `json:"MaterialTicker"`
-	Satisfaction       int32   `json:"Satisfaction"`
+	Satisfaction       float32 `json:"Satisfaction"`
 	UnitsPerInterval   float32 `json:"UnitsPerInterval"`
 	UnitsPerOneHundred float32 `json:"UnitsPerOneHundred"`
 }
