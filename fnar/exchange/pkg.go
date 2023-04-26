@@ -51,7 +51,7 @@ type Exchange struct {
 
 type echangeCache struct {
 	exchanges map[string]*Exchange
-	*sync.Mutex
+	mu        *sync.Mutex
 }
 
 const endpoint = "/exchange"
@@ -60,15 +60,15 @@ var cache = &echangeCache{}
 
 func GetAll(ctx context.Context, full bool) ([]*Exchange, error) {
 	exchanges := []*Exchange{}
-	cache.Lock()
+	cache.mu.Lock()
 	if len(cache.exchanges) != 0 {
 		for _, ce := range cache.exchanges {
 			exchanges = append(exchanges, ce)
 		}
-		cache.Unlock()
+		cache.mu.Unlock()
 		return exchanges, nil
 	}
-	cache.Unlock()
+	cache.mu.Unlock()
 
 	endpointExtra := "/all"
 	if full {
@@ -112,21 +112,21 @@ func GetAll(ctx context.Context, full bool) ([]*Exchange, error) {
 		}
 		exchanges = append(exchanges, exchange)
 
-		cache.Lock()
+		cache.mu.Lock()
 		cache.exchanges[exchange.MaterialTicker+"."+exchange.ExchangeCode] = exchange
-		cache.Unlock()
+		cache.mu.Unlock()
 	}
 
 	return exchanges, nil
 }
 
 func Get(ctx context.Context, exchangeCode string) (*Exchange, error) {
-	cache.Lock()
+	cache.mu.Lock()
 	if cachedExchange, ok := cache.exchanges[exchangeCode]; ok {
-		cache.Unlock()
+		cache.mu.Unlock()
 		return cachedExchange, nil
 	}
-	cache.Unlock()
+	cache.mu.Unlock()
 
 	resp, err := http.Get(fnar.BaseUrl + endpoint + "/" + exchangeCode)
 	if err != nil {
@@ -164,9 +164,9 @@ func Get(ctx context.Context, exchangeCode string) (*Exchange, error) {
 		return nil, err
 	}
 
-	cache.Lock()
+	cache.mu.Lock()
 	cache.exchanges[e.ExchangeCode+":"+e.MaterialTicker] = e
-	cache.Unlock()
+	cache.mu.Unlock()
 
 	return e, nil
 }
