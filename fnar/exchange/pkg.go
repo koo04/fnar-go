@@ -49,14 +49,15 @@ type Exchange struct {
 	Timestamp           time.Time      `json:"Timestamp"`
 }
 
-type echangeCache struct {
+type exchangeCache struct {
 	exchanges map[string]*Exchange
-	mu        *sync.Mutex
+
+	mu sync.Mutex
 }
 
 const endpoint = "/exchange"
 
-var cache = &echangeCache{}
+var cache = &exchangeCache{}
 
 func GetAll(ctx context.Context, full bool) ([]*Exchange, error) {
 	exchanges := []*Exchange{}
