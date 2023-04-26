@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/koo04/fnar-go/fnar"
@@ -48,9 +49,27 @@ type Exchange struct {
 	Timestamp           time.Time      `json:"Timestamp"`
 }
 
+type echangeCache struct {
+	exchanges map[string]*Exchange
+	*sync.Mutex
+}
+
 const endpoint = "/exchange"
 
+var cache = &echangeCache{}
+
 func GetAll(ctx context.Context, full bool) ([]*Exchange, error) {
+	exchanges := []*Exchange{}
+	cache.Lock()
+	if len(cache.exchanges) != 0 {
+		for _, ce := range cache.exchanges {
+			exchanges = append(exchanges, ce)
+		}
+		cache.Unlock()
+		return exchanges, nil
+	}
+	cache.Unlock()
+
 	endpointExtra := "/all"
 	if full {
 		endpointExtra = "/full"
@@ -62,6 +81,10 @@ func GetAll(ctx context.Context, full bool) ([]*Exchange, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
+		if resp.StatusCode == 204 {
+			return nil, fnar.Err_NOT_FOUND
+		}
+
 		b, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return nil, err
@@ -82,19 +105,29 @@ func GetAll(ctx context.Context, full bool) ([]*Exchange, error) {
 		return nil, errors.Wrap(err, "decoding json response")
 	}
 
-	exchanges := []*Exchange{}
 	for _, exchangeMap := range m {
 		exchange := &Exchange{}
 		if err := exchange.parse(exchangeMap); err != nil {
 			return nil, err
 		}
 		exchanges = append(exchanges, exchange)
+
+		cache.Lock()
+		cache.exchanges[exchange.MaterialTicker+"."+exchange.ExchangeCode] = exchange
+		cache.Unlock()
 	}
 
 	return exchanges, nil
 }
 
 func Get(ctx context.Context, exchangeCode string) (*Exchange, error) {
+	cache.Lock()
+	if cachedExchange, ok := cache.exchanges[exchangeCode]; ok {
+		cache.Unlock()
+		return cachedExchange, nil
+	}
+	cache.Unlock()
+
 	resp, err := http.Get(fnar.BaseUrl + endpoint + "/" + exchangeCode)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting exchange")
@@ -130,6 +163,10 @@ func Get(ctx context.Context, exchangeCode string) (*Exchange, error) {
 	if err := e.parse(m); err != nil {
 		return nil, err
 	}
+
+	cache.Lock()
+	cache.exchanges[e.ExchangeCode+":"+e.MaterialTicker] = e
+	cache.Unlock()
 
 	return e, nil
 }
