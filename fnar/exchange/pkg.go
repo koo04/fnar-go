@@ -57,7 +57,9 @@ type exchangeCache struct {
 
 const endpoint = "/exchange"
 
-var cache = &exchangeCache{}
+var cache = &exchangeCache{
+	exchanges: map[string]*Exchange{},
+}
 
 func GetAll(ctx context.Context, full bool) ([]*Exchange, error) {
 	exchanges := []*Exchange{}
