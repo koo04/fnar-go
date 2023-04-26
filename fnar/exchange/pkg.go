@@ -168,7 +168,7 @@ func Get(ctx context.Context, exchangeCode string) (*Exchange, error) {
 	}
 
 	cache.mu.Lock()
-	cache.exchanges[e.ExchangeCode+":"+e.MaterialTicker] = e
+	cache.exchanges[e.MaterialTicker+"."+e.ExchangeCode] = e
 	cache.mu.Unlock()
 
 	return e, nil
