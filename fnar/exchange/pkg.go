@@ -3,7 +3,6 @@ package exchange
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"sync"
@@ -138,7 +137,7 @@ func Get(ctx context.Context, exchangeCode string) (*Exchange, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 204 {
-		return nil, fmt.Errorf("unknown ticker %s", exchangeCode)
+		return nil, fnar.Err_NOT_FOUND
 	}
 
 	if resp.StatusCode != 200 {
